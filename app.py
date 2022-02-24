@@ -1,16 +1,12 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session
 
+from model.model_member import getconn, select_member
 from tbl_member import select_member
 
 app = Flask(__name__)
 
 app.secret_key = "#abcde!"  #로그인시 에러발생 - 비밀키 설정 필수
-
-# db 접속 함수
-def getconn():
-    conn = sqlite3.connect("./members.db")
-    return conn
 
 # index 페이지
 @app.route('/')
@@ -21,13 +17,8 @@ def index():
  #회원 목록
 @app.route('/memberlist/')
 def memberlist():
-    conn = getconn()
-    cur = conn.cursor()
-    sql = "SELECT * FROM member ORDER BY regDate DESC"
-    cur.execute(sql)
-    rs = cur.fetchall()
-    conn.close()
-    return render_template('memberlist.html', rs = rs)
+    rs = select_member()
+    return render_template(('memberlist.html'), rs = rs)
 
 # 회원 상세 페이지
 @app.route('/member_view/<string:id>/', methods = ['GET'])
